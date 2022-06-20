@@ -1,0 +1,51 @@
+{
+  "name": "release-it-free",
+  "version": "0.0.0",
+  "description": "release-it 扩展",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cz": "git-cz",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GOGOGOSIR/release-it-free.git"
+  },
+  "keywords": [
+    "release-it",
+    "release-it-custom",
+    "release",
+    "custom",
+    "changelog"
+  ],
+  "author": "ericwan <ericwan2021@163.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GOGOGOSIR/release-it-free/issues"
+  },
+  "homepage": "https://github.com/GOGOGOSIR/release-it-free#readme",
+  "lint-staged": {
+    "packages/**/*.{js,jsx,vue,ts,tsx}": [
+      "eslint --fix --max-warnings 0"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-conventional-changelog"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.2",
+    "@commitlint/config-conventional": "^17.0.2",
+    "@gogogosir/eslint-config": "^0.0.2",
+    "@gogogosir/prettier-config": "^0.0.2",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.18.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.2",
+    "prettier": "^2.7.1"
+  }
+}
