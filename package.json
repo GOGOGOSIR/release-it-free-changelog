@@ -1,18 +1,8 @@
 {
   "name": "release-it-free",
+  "type": "module",
   "version": "0.0.0",
   "description": "release-it 扩展",
-  "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "release": "release-it --config ./scripts/release-it.cjs",
-    "cz": "git-cz",
-    "prepare": "husky install"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/GOGOGOSIR/release-it-free.git"
-  },
   "keywords": [
     "plugin",
     "release-it",
@@ -22,12 +12,44 @@
     "custom",
     "changelog"
   ],
-  "author": "ericwan <ericwan2021@163.com>",
   "license": "MIT",
+  "author": "ericwan <ericwan2021@163.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GOGOGOSIR/release-it-free.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "release": "release-it --config ./scripts/release-it.cjs",
+    "cz": "git-cz",
+    "prepare": "husky install"
+  },
   "bugs": {
     "url": "https://github.com/GOGOGOSIR/release-it-free/issues"
   },
   "homepage": "https://github.com/GOGOGOSIR/release-it-free#readme",
+  "peerDependencies": {
+    "release-it": "^15.0.0-esm.4"
+  },
+  "dependencies": {
+    "concat-stream": "^2.0.0",
+    "conventional-changelog": "^3.1.25",
+    "execa": "^6.1.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.2",
+    "@commitlint/config-conventional": "^17.0.2",
+    "@gogogosir/eslint-config": "^0.0.4",
+    "@gogogosir/prettier-config": "^0.0.4",
+    "@release-it/conventional-changelog": "^5.0.0",
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.18.0",
+    "husky": "^8.0.1",
+    "lint-staged": "^13.0.2",
+    "prettier": "^2.7.1",
+    "release-it": "^15.0.0"
+  },
   "lint-staged": {
     "packages/**/*.{js,jsx,vue,ts,tsx}": [
       "eslint --fix --max-warnings 0"
@@ -38,28 +60,7 @@
       "path": "node_modules/cz-conventional-changelog"
     }
   },
-  "devDependencies": {
-    "@commitlint/cli": "^17.0.2",
-    "@commitlint/config-conventional": "^17.0.2",
-    "@gogogosir/eslint-config": "^0.0.2",
-    "@gogogosir/prettier-config": "^0.0.2",
-    "@release-it/conventional-changelog": "^5.0.0",
-    "commitizen": "^4.2.4",
-    "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^8.18.0",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.2",
-    "prettier": "^2.7.1",
-    "release-it": "^15.0.0"
-  },
   "engines": {
     "node": ">=14"
-  },
-  "peerDependencies": {
-    "release-it": "^15.0.0-esm.4"
-  },
-  "dependencies": {
-    "execa": "^6.1.0",
-    "inquirer": "^9.0.0"
   }
 }
