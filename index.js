@@ -1,12 +1,12 @@
 /* eslint-disable no-template-curly-in-string */
+import fs from 'node:fs'
+import { EOL } from 'node:os'
 import { Plugin } from 'release-it'
+import _ from 'lodash'
 import conventionalChangelog from 'conventional-changelog'
 import concat from 'concat-stream'
-// import fs from 'node:fs'
-// import pkg from 'package.json'
-// import { execaSync } from 'execa'
 
-const DEFAULT_CONVENTIONAL_CHANGELOG_OPTIONS = {
+const DEFAULT_CONVENTIONAL_CHANGELOG_PRESET = {
   preset: {
     name: 'conventionalcommits',
     types: [
@@ -58,9 +58,7 @@ const DEFAULT_CONVENTIONAL_CHANGELOG_OPTIONS = {
         section: '👷 Continuous Integration | CI 配置'
       }
     ]
-  },
-  infile: 'CHANGELOG.md',
-  header: '# CHANGE_LOGS'
+  }
 }
 
 class Free extends Plugin {
@@ -89,7 +87,11 @@ class Free extends Plugin {
         await this.step({
           prompt: 'customizeMessage',
           task: (answer) => {
-            this.customizeMessage = answer.trim()
+            this.customizeMessage = answer
+              .trim()
+              .split(/\r\n|\r|\n/g)
+              .map(s => s.trim())
+              .filter(s => s)
           }
         })
       }
@@ -112,11 +114,35 @@ class Free extends Plugin {
     const options = Object.assign(
       {},
       { releaseCount },
-      DEFAULT_CONVENTIONAL_CHANGELOG_OPTIONS,
+      DEFAULT_CONVENTIONAL_CHANGELOG_PRESET,
       this.options
     )
-    const { context, gitRawCommitsOpts, parserOpts, writerOpts, ..._o } =
-      options
+    const { gitRawCommitsOpts, parserOpts, writerOpts, ..._o } = options
+    let finallyWriterOpts = {}
+    let context = options.context
+    if (
+      this.customizeMessage &&
+      Array.isArray(this.customizeMessage) &&
+      this.customizeMessage.length
+    ) {
+      const mainTemplate = fs
+        .readFileSync(new URL('./custom-log.hbs', import.meta.url), 'utf8')
+        .toString()
+      context = _.defaultsDeep({}, _.omit(context, ['customLogs']), {
+        customLogs: this.customizeMessage
+      })
+      if (writerOpts) {
+        finallyWriterOpts = _.defaultsDeep({}, writerOpts, {
+          mainTemplate
+        })
+      } else {
+        finallyWriterOpts = {
+          mainTemplate
+        }
+      }
+    } else {
+      finallyWriterOpts = writerOpts
+    }
     const _c = Object.assign({ version, previousTag, currentTag }, context)
     const _r = Object.assign({ debug, from: previousTag }, gitRawCommitsOpts)
     this.debug('conventionalChangelog', {
@@ -124,7 +150,7 @@ class Free extends Plugin {
       context: _c,
       gitRawCommitsOpts: _r,
       parserOpts,
-      writerOpts,
+      writerOpts: finallyWriterOpts,
       version,
       isIncrement,
       latestTag,
@@ -135,20 +161,62 @@ class Free extends Plugin {
       releaseCount,
       debug
     })
-    return conventionalChangelog(_o, _c, _r, parserOpts, writerOpts)
+    return conventionalChangelog(_o, _c, _r, parserOpts, finallyWriterOpts)
   }
 
   async generateChangelog(options) {
     return new Promise((resolve, reject) => {
-      if (this.customizeMessage) {
-        resolve(this.customizeMessage)
-      } else {
-        const resolver = result => resolve(result.toString().trim())
-        const changelogStream = this.getChangelogStream(options)
-        changelogStream.pipe(concat(resolver))
-        changelogStream.on('error', reject)
-      }
+      const resolver = result => resolve(result.toString().trim())
+      const changelogStream = this.getChangelogStream(options)
+      changelogStream.pipe(concat(resolver))
+      changelogStream.on('error', reject)
     })
+  }
+
+  async getPreviousChangelog() {
+    const { infile } = this.options
+    return new Promise((resolve, reject) => {
+      const readStream = fs.createReadStream(infile)
+      const resolver = result => resolve(result.toString().trim())
+      readStream.pipe(concat(resolver))
+      readStream.on('error', reject)
+    })
+  }
+
+  async writeChangelog() {
+    const { infile, header: _header = '' } = this.options
+    let { changelog } = this.config.getContext()
+    const header = _header.split(/\r\n|\r|\n/g).join(EOL)
+
+    let hasInfile = false
+    try {
+      fs.accessSync(infile)
+      hasInfile = true
+    } catch (err) {
+      this.debug(err)
+    }
+
+    let previousChangelog = ''
+    try {
+      previousChangelog = await this.getPreviousChangelog()
+      previousChangelog = previousChangelog.replace(header, '')
+    } catch (err) {
+      this.debug(err)
+    }
+
+    if (!hasInfile) {
+      changelog = await this.generateChangelog({ releaseCount: 0 })
+      this.debug({ changelog })
+    }
+
+    fs.writeFileSync(
+      infile,
+      header +
+        (changelog ? EOL + EOL + changelog.trim() : '') +
+        (previousChangelog ? EOL + EOL + previousChangelog.trim() : '')
+    )
+
+    if (!hasInfile) await this.exec(`git add ${infile}`)
   }
 
   async bump(version) {
@@ -156,11 +224,15 @@ class Free extends Plugin {
     await this.registryCustomLogPrompts()
     const changelog = await this.generateChangelog()
     this.config.setContext({ changelog })
-    // console.log('changelog2====', this.config.getContext('changelog'))
   }
 
   async beforeRelease() {
-    // console.log('customizeMessage111: \n', this.customizeMessage)
+    const { infile } = this.options
+    const { isDryRun } = this.config
+
+    this.log.exec(`Writing changelog to ${infile}`, isDryRun)
+
+    if (infile && !isDryRun) await this.writeChangelog()
   }
 }
 
