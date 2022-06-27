@@ -5,64 +5,12 @@ import { Plugin } from 'release-it'
 import _ from 'lodash'
 import conventionalChangelog from 'conventional-changelog'
 import concat from 'concat-stream'
+import DEFAULT_CONVENTIONAL_CHANGELOG_PRESET from './preset.js'
 
-const DEFAULT_CONVENTIONAL_CHANGELOG_PRESET = {
-  preset: {
-    name: 'conventionalcommits',
-    types: [
-      {
-        type: 'feat',
-        section: '✨ Features | 新功能'
-      },
-      {
-        type: 'fix',
-        section: '🐛 Bug Fixes | Bug 修复'
-      },
-      {
-        type: 'chore',
-        section: '🚀 Chore | 构建/工程依赖/工具',
-        hidden: true
-      },
-      {
-        type: 'docs',
-        section: '📝 Documentation | 文档'
-      },
-      {
-        type: 'style',
-        section: '💄 Styles | 样式'
-      },
-      {
-        type: 'refactor',
-        section: '♻️ Code Refactoring | 代码重构'
-      },
-      {
-        type: 'perf',
-        section: '⚡ Performance Improvements | 性能优化'
-      },
-      {
-        type: 'test',
-        section: '✅ Tests | 测试',
-        hidden: true
-      },
-      {
-        type: 'revert',
-        section: '⏪ Revert | 回退',
-        hidden: true
-      },
-      {
-        type: 'build',
-        section: '📦‍ Build System | 打包构建'
-      },
-      {
-        type: 'ci',
-        section: '👷 Continuous Integration | CI 配置'
-      }
-    ]
-  }
-}
+const DEFAULT_CHANGELOG_FILE = 'CHANGELOG.md'
 
 class Free extends Plugin {
-  customizeMessage = ''
+  customizeMessage = null
 
   async registryCustomLogPrompts() {
     this.registerPrompts({
@@ -111,6 +59,9 @@ class Free extends Plugin {
     const previousTag = isIncrement ? latestTag : secondLatestTag
     const releaseCount = opts.releaseCount === 0 ? 0 : isIncrement ? 1 : 2
     const debug = this.config.isDebug ? this.debug : null
+    const headerTemplate = fs
+      .readFileSync(new URL('./template/header.hbs', import.meta.url), 'utf8')
+      .toString()
     const options = Object.assign(
       {},
       { releaseCount },
@@ -126,25 +77,35 @@ class Free extends Plugin {
       this.customizeMessage.length
     ) {
       const mainTemplate = fs
-        .readFileSync(new URL('./custom-log.hbs', import.meta.url), 'utf8')
+        .readFileSync(
+          new URL('./template/custom-log.hbs', import.meta.url),
+          'utf8'
+        )
         .toString()
       context = _.defaultsDeep({}, _.omit(context, ['customLogs']), {
         customLogs: this.customizeMessage
       })
       if (writerOpts) {
         finallyWriterOpts = _.defaultsDeep({}, writerOpts, {
-          mainTemplate
+          mainTemplate,
+          headerPartial: headerTemplate
         })
       } else {
         finallyWriterOpts = {
-          mainTemplate
+          mainTemplate,
+          headerPartial: headerTemplate
         }
       }
     } else {
-      finallyWriterOpts = writerOpts
+      finallyWriterOpts = _.defaultsDeep({}, writerOpts, {
+        headerPartial: headerTemplate
+      })
     }
     const _c = Object.assign({ version, previousTag, currentTag }, context)
-    const _r = Object.assign({ debug, from: previousTag }, gitRawCommitsOpts)
+    const _r = Object.assign(
+      { debug, from: releaseCount === 0 ? '' : previousTag },
+      gitRawCommitsOpts
+    )
     this.debug('conventionalChangelog', {
       options: _o,
       context: _c,
@@ -174,9 +135,9 @@ class Free extends Plugin {
   }
 
   async getPreviousChangelog() {
-    const { infile } = this.options
+    const { changelogFile = DEFAULT_CHANGELOG_FILE } = this.options
     return new Promise((resolve, reject) => {
-      const readStream = fs.createReadStream(infile)
+      const readStream = fs.createReadStream(changelogFile)
       const resolver = result => resolve(result.toString().trim())
       readStream.pipe(concat(resolver))
       readStream.on('error', reject)
@@ -184,14 +145,15 @@ class Free extends Plugin {
   }
 
   async writeChangelog() {
-    const { infile, header: _header = '' } = this.options
+    const { changelogFile = DEFAULT_CHANGELOG_FILE, header: _header = '' } =
+      this.options
     let { changelog } = this.config.getContext()
     const header = _header.split(/\r\n|\r|\n/g).join(EOL)
 
-    let hasInfile = false
+    let hasChangelogFile = false
     try {
-      fs.accessSync(infile)
-      hasInfile = true
+      fs.accessSync(changelogFile)
+      hasChangelogFile = true
     } catch (err) {
       this.debug(err)
     }
@@ -204,35 +166,40 @@ class Free extends Plugin {
       this.debug(err)
     }
 
-    if (!hasInfile) {
+    if (!hasChangelogFile) {
       changelog = await this.generateChangelog({ releaseCount: 0 })
       this.debug({ changelog })
     }
 
     fs.writeFileSync(
-      infile,
+      changelogFile,
       header +
-        (changelog ? EOL + EOL + changelog.trim() : '') +
+        (changelog
+          ? header
+            ? EOL + EOL + changelog.trim()
+            : changelog.trim()
+          : '') +
         (previousChangelog ? EOL + EOL + previousChangelog.trim() : '')
     )
 
-    if (!hasInfile) await this.exec(`git add ${infile}`)
+    if (!hasChangelogFile) await this.exec(`git add ${changelogFile}`)
   }
 
   async bump(version) {
+    const { customChangelog = false } = this.options
     this.setContext({ version })
-    await this.registryCustomLogPrompts()
+    if (customChangelog) await this.registryCustomLogPrompts()
     const changelog = await this.generateChangelog()
     this.config.setContext({ changelog })
   }
 
   async beforeRelease() {
-    const { infile } = this.options
+    const { changelogFile = DEFAULT_CHANGELOG_FILE } = this.options
     const { isDryRun } = this.config
 
-    this.log.exec(`Writing changelog to ${infile}`, isDryRun)
+    this.log.exec(`Writing changelog to ${changelogFile}`, isDryRun)
 
-    if (infile && !isDryRun) await this.writeChangelog()
+    if (changelogFile && !isDryRun) await this.writeChangelog()
   }
 }
 
