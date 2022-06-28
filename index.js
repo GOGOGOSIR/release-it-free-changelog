@@ -6,6 +6,7 @@ import _ from 'lodash'
 import conventionalChangelog from 'conventional-changelog'
 import concat from 'concat-stream'
 import DEFAULT_CONVENTIONAL_CHANGELOG_PRESET from './preset.js'
+import getWriterOpts from './writer-opts.js'
 
 const DEFAULT_CHANGELOG_FILE = 'CHANGELOG.md'
 
@@ -59,9 +60,7 @@ class Free extends Plugin {
     const previousTag = isIncrement ? latestTag : secondLatestTag
     const releaseCount = opts.releaseCount === 0 ? 0 : isIncrement ? 1 : 2
     const debug = this.config.isDebug ? this.debug : null
-    const headerTemplate = fs
-      .readFileSync(new URL('./template/header.hbs', import.meta.url), 'utf8')
-      .toString()
+    const writerOptions = getWriterOpts()
     const options = Object.assign(
       {},
       { releaseCount },
@@ -86,20 +85,15 @@ class Free extends Plugin {
         customLogs: this.customizeMessage
       })
       if (writerOpts) {
-        finallyWriterOpts = _.defaultsDeep({}, writerOpts, {
-          mainTemplate,
-          headerPartial: headerTemplate
-        })
+        finallyWriterOpts = _.defaultsDeep({}, writerOpts, writerOptions)
       } else {
         finallyWriterOpts = {
-          mainTemplate,
-          headerPartial: headerTemplate
+          ...writerOptions,
+          mainTemplate
         }
       }
     } else {
-      finallyWriterOpts = _.defaultsDeep({}, writerOpts, {
-        headerPartial: headerTemplate
-      })
+      finallyWriterOpts = _.defaultsDeep({}, writerOpts, writerOptions)
     }
     const _c = Object.assign({ version, previousTag, currentTag }, context)
     const _r = Object.assign(
