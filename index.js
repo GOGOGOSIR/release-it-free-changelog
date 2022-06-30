@@ -68,6 +68,14 @@ class Free extends Plugin {
       this.options
     )
     const { gitRawCommitsOpts, parserOpts, writerOpts, ..._o } = options
+    const finallyGitRawCommitsOpts = _.defaultsDeep(
+      {},
+      {
+        format:
+          '%B%n-hash-%n%H%n-gitTags-%n%d%n-committerDate-%n%ci%n-authorName-%n%an%n-authorEmail-%n%ae'
+      },
+      gitRawCommitsOpts || {}
+    )
     let finallyWriterOpts = {}
     let context = options.context
     if (
@@ -98,7 +106,7 @@ class Free extends Plugin {
     const _c = Object.assign({ version, previousTag, currentTag }, context)
     const _r = Object.assign(
       { debug, from: releaseCount === 0 ? '' : previousTag },
-      gitRawCommitsOpts
+      finallyGitRawCommitsOpts
     )
     this.debug('conventionalChangelog', {
       options: _o,
