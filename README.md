@@ -143,6 +143,12 @@ If set to true, you can rewrite the log content，as shown below:
 
 <img src="./static/demo-example.jpg?raw=true" height="280">
 
+### `authorName`
+
+Default value: `true`
+
+If set to false, the submitter of each commit will not be displayed
+
 ### `context`
 
 Default value: `undefined`

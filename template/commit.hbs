@@ -18,7 +18,7 @@
   {{~else}}
     {{~@root.repoUrl}}
   {{~/if}}/
-  {{~@root.commit}}/{{hash}})) **by: {{authorName}}**
+  {{~@root.commit}}/{{hash}})) {{gitUserInfo}}
 {{~else}}
   {{~shortHash}}
 {{~/if}}

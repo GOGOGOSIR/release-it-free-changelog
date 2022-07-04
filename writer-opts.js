@@ -1,6 +1,8 @@
 import fs from 'node:fs'
 
-export default () => {
+export default (options) => {
+  const { authorName = true } = options
+  const gitUserInfo = authorName ? '**by: {{authorName}}**' : ''
   const headerTemplate = fs
     .readFileSync(new URL('./template/header.hbs', import.meta.url), 'utf8')
     .toString()
@@ -17,7 +19,7 @@ export default () => {
   return {
     mainTemplate,
     headerPartial: headerTemplate,
-    commitPartial: commitTemplate,
+    commitPartial: commitTemplate.replace(/{{gitUserInfo}}/g, gitUserInfo),
     footerPartial: footerTemplate
   }
 }

@@ -60,13 +60,13 @@ class Free extends Plugin {
     const previousTag = isIncrement ? latestTag : secondLatestTag
     const releaseCount = opts.releaseCount === 0 ? 0 : isIncrement ? 1 : 2
     const debug = this.config.isDebug ? this.debug : null
-    const writerOptions = getWriterOpts()
     const options = Object.assign(
       {},
       { releaseCount },
       DEFAULT_CONVENTIONAL_CHANGELOG_PRESET,
       this.options
     )
+    const writerOptions = getWriterOpts(options)
     const { gitRawCommitsOpts, parserOpts, writerOpts, ..._o } = options
     const finallyGitRawCommitsOpts = _.defaultsDeep(
       {},
