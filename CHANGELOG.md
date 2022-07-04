@@ -1,5 +1,12 @@
 # CHANGE_LOGS
 
+## [0.0.2](https://github.com/GOGOGOSIR/release-it-free/compare/v0.0.1...v0.0.2) (2022-07-04)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+- 修改 package.json 的 files ([021dbcf](https://github.com/GOGOGOSIR/release-it-free/commit/021dbcf3bca110e32defb644895dc24072c3f6a7)) **by: wanjianqiang**
+
 ## 0.0.1 (2022-07-04)
 
 
