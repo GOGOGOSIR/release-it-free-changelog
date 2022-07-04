@@ -188,9 +188,9 @@ class Free extends Plugin {
   }
 
   async bump(version) {
-    const { customChangelog = false } = this.options
+    const { rewriteChangelog = false } = this.options
     this.setContext({ version })
-    if (customChangelog) await this.registryCustomLogPrompts()
+    if (rewriteChangelog) await this.registryCustomLogPrompts()
     const changelog = await this.generateChangelog()
     this.config.setContext({ changelog })
   }
