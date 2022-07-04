@@ -1,5 +1,16 @@
 # CHANGE_LOGS
 
+## [0.0.3](https://github.com/GOGOGOSIR/release-it-free/compare/v0.0.2...v0.0.3) (2022-07-04)
+
+
+### 📝 Documentation | 文档
+
+- change badge ([d70c6cd](https://github.com/GOGOGOSIR/release-it-free/commit/d70c6cd3766a62b7bff9a2796d636a6f6ba105b8)) **by: wanjianqiang**
+
+### ✨ Features | 新功能
+
+- 新增authorName配置,用于配置是否展示 authorName ([6fa0212](https://github.com/GOGOGOSIR/release-it-free/commit/6fa0212e91a08db0a562e2103c5d769243ffa648)) **by: wanjianqiang**
+
 ## [0.0.2](https://github.com/GOGOGOSIR/release-it-free/compare/v0.0.1...v0.0.2) (2022-07-04)
 
 
