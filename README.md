@@ -139,7 +139,7 @@ Default value: `false`
 
 If set to true, you can rewrite the log content，as shown below:
 
-<img align="right" src="./static/c.gif?raw=true" height="280">
+<img src="./static/c.gif?raw=true" height="280">
 
 <img src="./static/demo-example.jpg?raw=true" height="280">
 
