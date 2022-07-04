@@ -1,15 +1,15 @@
 <h1 align="center">release-it-free-changelog 👋</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-0.0.0-blue.svg?cacheSeconds=2592000" />
+  <img src="https://img.shields.io/npm/v/release-it-free-changelog?color=41b883&label=npm" />
   <img src="https://img.shields.io/badge/node-%3E%3D14-blue.svg" />
-  <a href="https://github.com/GOGOGOSIR/release-it-free#readme" target="_blank">
+  <a href="https://github.com/GOGOGOSIR/release-it-free-changelog#readme" target="_blank">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
   </a>
-  <a href="https://github.com/GOGOGOSIR/release-it-free/graphs/commit-activity" target="_blank">
+  <a href="https://github.com/GOGOGOSIR/release-it-free-changelog/graphs/commit-activity" target="_blank">
     <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
   </a>
-  <a href="https://github.com/GOGOGOSIR/release-it-free/blob/master/LICENSE" target="_blank">
-    <img alt="License: MIT" src="https://img.shields.io/github/license/GOGOGOSIR/release-it-free" />
+  <a href="https://github.com/GOGOGOSIR/release-it-free-changelog/blob/master/LICENSE" target="_blank">
+    <img alt="License: MIT" src="https://img.shields.io/github/license/GOGOGOSIR/release-it-free-changelog" />
   </a>
 </p>
 
