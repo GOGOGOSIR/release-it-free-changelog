@@ -12,7 +12,6 @@ module.exports = {
   },
   plugins: {
     './index.js': {
-      infile: 'CHANGELOG.md',
       header: '# CHANGE_LOGS'
     }
   },

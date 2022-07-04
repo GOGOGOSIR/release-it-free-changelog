@@ -2,7 +2,7 @@
   "name": "release-it-free-changelog",
   "type": "module",
   "version": "0.0.0",
-  "description": "release-it 扩展",
+  "description": "An extension based on @release-it/conventional-changelog",
   "keywords": [
     "plugin",
     "release-it",
