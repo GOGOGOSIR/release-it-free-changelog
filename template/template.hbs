@@ -1,4 +1,14 @@
 {{> header}}
+{{#if (isCurrentVersion version)}}
+{{!-- The latest version --}}
+{{#if customLogs }}
+{{!-- is a custom log --}}
+## 🚀 Custom Logs | 自定义日志
+{{#each customLogs}}
+- {{this}}
+{{/each}}
+{{else}}
+{{!-- normal log --}}
 {{#each commitGroups}}
 
 {{#if title}}
@@ -9,4 +19,18 @@
 {{> commit root=@root}}
 {{/each}}
 {{/each}}
+{{/if}}
+{{else}}
+{{!-- historic version --}}
+{{#each commitGroups}}
+
+{{#if title}}
+### {{title}}
+{{/if}}
+
+{{#each commits}}
+{{> commit root=@root}}
+{{/each}}
+{{/each}}
+{{/if}}
 {{> footer}}

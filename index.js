@@ -2,6 +2,7 @@
 import fs from 'node:fs'
 import { EOL } from 'node:os'
 import { Plugin } from 'release-it'
+import Handlebars from 'handlebars'
 import _ from 'lodash'
 import conventionalChangelog from 'conventional-changelog'
 import concat from 'concat-stream'
@@ -76,39 +77,23 @@ class Free extends Plugin {
       },
       gitRawCommitsOpts || {}
     )
-    let finallyWriterOpts = {}
+    const finallyWriterOpts = _.defaultsDeep({}, writerOpts, writerOptions)
     let context = options.context
     if (
       this.customizeMessage &&
       Array.isArray(this.customizeMessage) &&
       this.customizeMessage.length
     ) {
-      const mainTemplate = fs
-        .readFileSync(
-          new URL('./template/custom-log.hbs', import.meta.url),
-          'utf8'
-        )
-        .toString()
       context = _.defaultsDeep({}, _.omit(context, ['customLogs']), {
         customLogs: this.customizeMessage
       })
-      if (writerOpts) {
-        finallyWriterOpts = _.defaultsDeep({}, writerOpts, writerOptions)
-      } else {
-        finallyWriterOpts = {
-          ...writerOptions,
-          mainTemplate
-        }
-      }
-    } else {
-      finallyWriterOpts = _.defaultsDeep({}, writerOpts, writerOptions)
     }
     const _c = Object.assign({ version, previousTag, currentTag }, context)
     const _r = Object.assign(
       { debug, from: releaseCount === 0 ? '' : previousTag },
       finallyGitRawCommitsOpts
     )
-    this.debug('conventionalChangelog', {
+    this.debug('free-change-log', {
       options: _o,
       context: _c,
       gitRawCommitsOpts: _r,
@@ -187,8 +172,16 @@ class Free extends Plugin {
     if (!hasChangelogFile) await this.exec(`git add ${changelogFile}`)
   }
 
+  registerHelper() {
+    Handlebars.registerHelper('isCurrentVersion', (historyVersion) => {
+      const { version } = this.getContext()
+      return historyVersion === version
+    })
+  }
+
   async bump(version) {
     const { rewriteChangelog = false } = this.options
+    this.registerHelper()
     this.setContext({ version })
     if (rewriteChangelog) await this.registryCustomLogPrompts()
     const changelog = await this.generateChangelog()
