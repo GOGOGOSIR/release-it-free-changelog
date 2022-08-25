@@ -1,5 +1,12 @@
 # CHANGE_LOGS
 
+## [0.0.4](https://github.com/GOGOGOSIR/release-it-free/compare/v0.0.3...v0.0.4) (2022-08-25)
+
+
+### 🐛 Bug Fixes | Bug 修复
+
+- 自定义日志且第一次生成日志时,自定义的内容会覆盖之前版本changelog内容本身 ([956c792](https://github.com/GOGOGOSIR/release-it-free/commit/956c7924aeb94b3600c452a831200846b3d04309)) **by: wanjianqiang**
+
 ## [0.0.3](https://github.com/GOGOGOSIR/release-it-free/compare/v0.0.2...v0.0.3) (2022-07-04)
 
 
